@@ -6,7 +6,7 @@ import time
 from matplotlib import pyplot as plt
 from IPython import display
 
-from models import Generator, Discriminator
+from gan.models import Generator, Discriminator
 
 # !pip install -U tensorboard
 
