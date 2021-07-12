@@ -1,12 +1,17 @@
-$('#test').html('hi');
+import DrawCanvas from './DrawCanvas';
+import DisplayCanvas from './DisplayCanvas';
 
-let canvas = $('#canvas');
-let ctx = canvas[0].getContext('2d');
-ctx.lineWidth = 5;
-ctx.fillStyle = 'rgb(255, 0, 0)';
-ctx.strokeRect(25, 25, 175, 200);
-ctx.beginPath();
-ctx.moveTo(50, 50);
-// draw your path
-ctx.fill();
+const {ipcRenderer} = window.require('electron');
+
+let canvas = new DrawCanvas();
+
+let displayCanvas = new DisplayCanvas();
+
+ipcRenderer.on('image-response', (event, arg) => {
+    let src = `data:image/jpg;base64,${arg}`;
+    displayCanvas.setImage(src);
+});
+
+console.log('fetching image');
+ipcRenderer.send('fetch-image');
 
