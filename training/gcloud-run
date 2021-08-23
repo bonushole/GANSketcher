@@ -1,0 +1,12 @@
+gcloud ai-platform jobs submit training facades5 \
+--package-path gan/ \
+--module-name gan.sketcher \
+--region $REGION \
+--python-version 3.7 \
+--runtime-version 2.5 \
+--stream-logs \
+--job-dir gs://"$BUCKET_NAME"/checkpoints/facades \
+--scale-tier basic_gpu \
+-- \
+--headless \
+--cloud

@@ -1,12 +1,24 @@
 import tensorflow as tf
+from gan.models import Generator, Discriminator
+import gan.cloud_paths as cloud_paths
 
 import os
 import time
 
-from matplotlib import pyplot as plt
-from IPython import display
+import argparse
 
-from gan.models import Generator, Discriminator
+arg_parser = argparse.ArgumentParser()
+arg_parser.add_argument('--headless', action='store_true')
+arg_parser.add_argument('--cloud', action='store_true')
+# gcloud ai-platform automatically passes this arg
+arg_parser.add_argument('--job-dir')
+args = arg_parser.parse_args()
+
+if not args.headless:
+    from matplotlib import pyplot as plt
+    from IPython import display
+
+
 
 # !pip install -U tensorboard
 
@@ -17,14 +29,19 @@ You can download this dataset and similar datasets from [here](https://people.ee
 * In random jittering, the image is resized to `286 x 286` and then randomly cropped to `256 x 256`
 * In random mirroring, the image is randomly flipped horizontally i.e left to right.
 """
+PATH = ''
 
-_URL = 'https://people.eecs.berkeley.edu/~tinghuiz/projects/pix2pix/datasets/facades.tar.gz'
+if args.cloud:
+    PATH = cloud_paths.DATASET_PATH
+    CHECKPOINT_DIR = cloud_paths.CHECKPOINT_PATH
+else:
+    _URL = 'https://people.eecs.berkeley.edu/~tinghuiz/projects/pix2pix/datasets/facades.tar.gz'
 
-path_to_zip = tf.keras.utils.get_file('facades.tar.gz',
-                                      origin=_URL,
-                                      extract=True)
-
-PATH = os.path.join(os.path.dirname(path_to_zip), 'facades/')
+    path_to_zip = tf.keras.utils.get_file('facades.tar.gz',
+                                          origin=_URL,
+                                          extract=True)
+    PATH = os.path.join(os.path.dirname(path_to_zip), 'facades/')
+    CHECKPOINT_DIR = './training_checkpoints'
 print(PATH)
 
 BUFFER_SIZE = 400
@@ -33,6 +50,7 @@ IMG_WIDTH = 256
 IMG_HEIGHT = 256
 
 def load(image_file):
+  print('loading {}'.format(image_file))
   image = tf.io.read_file(image_file)
   image = tf.image.decode_jpeg(image)
 
@@ -48,11 +66,12 @@ def load(image_file):
   return input_image, real_image
 
 inp, re = load(PATH+'train/100.jpg')
-# casting to int for matplotlib to show the image
-plt.figure()
-plt.imshow(inp/255.0)
-plt.figure()
-plt.imshow(re/255.0)
+if not args.headless:
+    # casting to int for matplotlib to show the image
+    plt.figure()
+    plt.imshow(inp/255.0)
+    plt.figure()
+    plt.imshow(re/255.0)
 
 def resize(input_image, real_image, height, width):
   input_image = tf.image.resize(input_image, [height, width],
@@ -92,22 +111,23 @@ def random_jitter(input_image, real_image):
 
   return input_image, real_image
 
-"""As you can see in the images below
-that they are going through random jittering
-Random jittering as described in the paper is to
+if not args.headless:
+    """As you can see in the images below
+    that they are going through random jittering
+    Random jittering as described in the paper is to
 
-1. Resize an image to bigger height and width
-2. Randomly crop to the target size
-3. Randomly flip the image horizontally
-"""
+    1. Resize an image to bigger height and width
+    2. Randomly crop to the target size
+    3. Randomly flip the image horizontally
+    """
 
-plt.figure(figsize=(6, 6))
-for i in range(4):
-  rj_inp, rj_re = random_jitter(inp, re)
-  plt.subplot(2, 2, i+1)
-  plt.imshow(rj_inp/255.0)
-  plt.axis('off')
-plt.show()
+    plt.figure(figsize=(6, 6))
+    for i in range(4):
+      rj_inp, rj_re = random_jitter(inp, re)
+      plt.subplot(2, 2, i+1)
+      plt.imshow(rj_inp/255.0)
+      plt.axis('off')
+    plt.show()
 
 def load_image_train(image_file):
   input_image, real_image = load(image_file)
@@ -196,19 +216,21 @@ the accumulated statistics learned from the training dataset
 """
 
 def generate_images(model, test_input, tar):
-  prediction = model(test_input, training=True)
-  plt.figure(figsize=(15, 15))
+    prediction = model(test_input, training=True)
+    if not args.headless:
+        plt.figure(figsize=(15, 15))
 
-  display_list = [test_input[0], tar[0], prediction[0]]
-  title = ['Input Image', 'Ground Truth', 'Predicted Image']
-
-  for i in range(3):
-    plt.subplot(1, 3, i+1)
-    plt.title(title[i])
-    # getting the pixel values between [0, 1] to plot it.
-    plt.imshow(display_list[i] * 0.5 + 0.5)
-    plt.axis('off')
-  plt.show()
+    display_list = [test_input[0], tar[0], prediction[0]]
+    title = ['Input Image', 'Ground Truth', 'Predicted Image']
+    
+    if not args.headless:
+        for i in range(3):
+            plt.subplot(1, 3, i+1)
+            plt.title(title[i])
+            # getting the pixel values between [0, 1] to plot it.
+            plt.imshow(display_list[i] * 0.5 + 0.5)
+            plt.axis('off')
+        plt.show()
 
 
 
@@ -267,8 +289,8 @@ def train_step(input_image, target, epoch):
 def fit(train_ds, epochs, test_ds):
   for epoch in range(epochs):
     start = time.time()
-
-    display.clear_output(wait=True)
+    if not args.headless:
+        display.clear_output(wait=True)
 
     for example_input, example_target in test_ds.take(1):
       generate_images(generator, example_input, example_target)
@@ -283,7 +305,7 @@ def fit(train_ds, epochs, test_ds):
     print()
 
     # saving (checkpoint) the model every 20 epochs
-    if (epoch + 1) % 20 == 0:
+    if epoch % 20 == 0:
       checkpoint.save(file_prefix=checkpoint_prefix)
 
     print ('Time taken for epoch {} is {} sec\n'.format(epoch + 1,
@@ -298,17 +320,18 @@ To launch the viewer paste the following into a code-cell:
   
 if __name__ == '__main__':
     generator = Generator()
-    tf.keras.utils.plot_model(generator, show_shapes=True, dpi=64)
-
-    gen_output = generator(inp[tf.newaxis, ...], training=False)
-    plt.imshow(gen_output[0, ...])
-    
     discriminator = Discriminator()
-    tf.keras.utils.plot_model(discriminator, show_shapes=True, dpi=64)
+    if not args.headless:
+        tf.keras.utils.plot_model(generator, show_shapes=True, dpi=64)
 
-    disc_out = discriminator([inp[tf.newaxis, ...], gen_output], training=False)
-    plt.imshow(disc_out[0, ..., -1], vmin=-20, vmax=20, cmap='RdBu_r')
-    plt.colorbar()
+        gen_output = generator(inp[tf.newaxis, ...], training=False)
+        plt.imshow(gen_output[0, ...])
+        
+        tf.keras.utils.plot_model(discriminator, show_shapes=True, dpi=64)
+
+        disc_out = discriminator([inp[tf.newaxis, ...], gen_output], training=False)
+        plt.imshow(disc_out[0, ..., -1], vmin=-20, vmax=20, cmap='RdBu_r')
+        plt.colorbar()
 
 
     """The training procedure for the discriminator is shown below.
@@ -323,7 +346,8 @@ if __name__ == '__main__':
     generator_optimizer = tf.keras.optimizers.Adam(2e-4, beta_1=0.5)
     discriminator_optimizer = tf.keras.optimizers.Adam(2e-4, beta_1=0.5)
 
-    checkpoint_dir = './training_checkpoints'
+    checkpoint_dir = CHECKPOINT_DIR
+    print('checkpoint_dir {}'.format(checkpoint_dir))
     checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
     checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer,
                                      discriminator_optimizer=discriminator_optimizer,
@@ -334,13 +358,13 @@ if __name__ == '__main__':
         generate_images(generator, example_input, example_target)
 
     """Now run the training loop:"""
-
-    fit(train_dataset, EPOCHS, test_dataset)
-
-    display.IFrame(
-        src="https://tensorboard.dev/experiment/lZ0C6FONROaUMfjYkVyJqw",
-        width="100%",
-        height="1000px")
+    #checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
+    #fit(train_dataset, EPOCHS, test_dataset)
+    if not args.headless:
+        display.IFrame(
+            src="https://tensorboard.dev/experiment/lZ0C6FONROaUMfjYkVyJqw",
+            width="100%",
+            height="1000px")
 
     """Interpreting the logs from a GAN is more subtle than a simple classification or regression model. Things to look for::
 

@@ -2,3 +2,5 @@ node_modules
 js/dist/main.js
 logs
 images
+training/training_checkpoints
+training/gan/cloud_paths.py
