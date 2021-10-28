@@ -2,7 +2,8 @@ const {app, BrowserWindow, ipcMain} = require('electron');
 const path = require('path');
 const fs = require('fs/promises');
 
-const IMAGES_FOLDER ='../images/images/images/Michelangelo';
+const IMAGES_FOLDER = '../images/raw/images/Michelangelo';
+const GENERATED_FOLDER = '../images/generated';
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -33,15 +34,27 @@ app.on('window-all-closed', () => {
     }
 });
 
-async function getRandomImage(event){
+async function getRandomImage(event) {
     let files = await fs.readdir(IMAGES_FOLDER);
+    let generated = await fs.readdir(GENERATED_FOLDER);
+    generated = new Set(generated);
+    files = files.filter(file => !generated.has(file));
     let image = await fs.readFile(`${IMAGES_FOLDER}/${files[0]}`);
     image = image.toString('base64');
     
-    event.reply('image-response', image);
+    event.reply('image-response', image, files[0]);
+}
+
+async function writeImage(event, image, saveName) {
+    let imageData = new Buffer(image, 'base64');
+    await fs.writeFile(`${GENERATED_FOLDER}/${saveName}`, imageData);
+    event.reply('save-response');
 }
 
 ipcMain.on('fetch-image', (event) => {
-    console.log('fetching image');
     getRandomImage(event);
+});
+
+ipcMain.on('save-image', (event, image, saveName) => {
+    writeImage(event, image, saveName);
 });

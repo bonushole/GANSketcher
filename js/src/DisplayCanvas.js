@@ -27,6 +27,5 @@ export default class DisplayCanvas {
             );
         };
         img.src = image_dat;
-        
     }
 }
