@@ -1,0 +1,17 @@
+This project is divided into two projects: js (responsible for data creation app), and training (responsible for tensorflow NN training).
+
+## js
+
+installation prerequisites: node, npm
+
+installation (in `js` folder): `npm install`
+
+running: `npm run build` (to rebuild the frontend javascript) `npm run start-electron`
+
+## training
+
+installation prerequisites: python3, pipenv
+
+intallation: `pipenv install` or `python -m pipenv install`
+
+running: TBD
