@@ -1,4 +1,4 @@
-gcloud ai-platform jobs submit training facades5 \
+gcloud ai-platform jobs submit training paintings5 \
 --package-path gan/ \
 --module-name gan.sketcher \
 --region $REGION \
@@ -9,4 +9,6 @@ gcloud ai-platform jobs submit training facades5 \
 --scale-tier basic_gpu \
 -- \
 --headless \
---cloud
+--cloud \
+--use-train-for-test \
+--dataset paintings

@@ -10,8 +10,18 @@ import argparse
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument('--headless', action='store_true')
 arg_parser.add_argument('--cloud', action='store_true')
+arg_parser.add_argument('--skip-training', action='store_true')
+arg_parser.add_argument('--skip-restore', action='store_true')
+arg_parser.add_argument('--use-train-for-test', action='store_true')
+arg_parser.add_argument('--show_untrained', action='store_true')
 # gcloud ai-platform automatically passes this arg
 arg_parser.add_argument('--job-dir')
+arg_parser.add_argument(
+    '--dataset',
+    default='facades',
+    choices=['facades', 'paintings']
+)
+arg_parser.add_argument('--epochs', type=int, default=450)
 args = arg_parser.parse_args()
 
 if not args.headless:
@@ -32,17 +42,25 @@ You can download this dataset and similar datasets from [here](https://people.ee
 PATH = ''
 
 if args.cloud:
-    PATH = cloud_paths.DATASET_PATH
-    CHECKPOINT_DIR = cloud_paths.CHECKPOINT_PATH
+    PATH = cloud_paths.DATASET_PATH + args.dataset + '/'
+    CHECKPOINT_DIR = cloud_paths.CHECKPOINT_PATH + args.dataset
 else:
-    _URL = 'https://people.eecs.berkeley.edu/~tinghuiz/projects/pix2pix/datasets/facades.tar.gz'
+    if args.dataset == 'facades':
+        _URL = 'https://people.eecs.berkeley.edu/~tinghuiz/projects/pix2pix/datasets/facades.tar.gz'
 
-    path_to_zip = tf.keras.utils.get_file('facades.tar.gz',
-                                          origin=_URL,
-                                          extract=True)
-    PATH = os.path.join(os.path.dirname(path_to_zip), 'facades/')
-    CHECKPOINT_DIR = './training_checkpoints'
+        path_to_zip = tf.keras.utils.get_file('facades.tar.gz',
+                                              origin=_URL,
+                                              extract=True)
+        PATH = os.path.join(os.path.dirname(path_to_zip), 'facades/')
+    elif args.dataset == 'paintings':
+        PATH = '../images/generated/'
+    CHECKPOINT_DIR = os.path.join('./training_checkpoints', args.dataset)
 print(PATH)
+
+TRAIN_PATTERN = PATH+'train/*.jpg'
+TEST_PATTERN = PATH+'test/*.jpg'
+if args.use_train_for_test:
+    TEST_PATTERN = TRAIN_PATTERN
 
 BUFFER_SIZE = 400
 BATCH_SIZE = 1
@@ -64,14 +82,6 @@ def load(image_file):
   real_image = tf.cast(real_image, tf.float32)
 
   return input_image, real_image
-
-inp, re = load(PATH+'train/100.jpg')
-if not args.headless:
-    # casting to int for matplotlib to show the image
-    plt.figure()
-    plt.imshow(inp/255.0)
-    plt.figure()
-    plt.imshow(re/255.0)
 
 def resize(input_image, real_image, height, width):
   input_image = tf.image.resize(input_image, [height, width],
@@ -111,24 +121,6 @@ def random_jitter(input_image, real_image):
 
   return input_image, real_image
 
-if not args.headless:
-    """As you can see in the images below
-    that they are going through random jittering
-    Random jittering as described in the paper is to
-
-    1. Resize an image to bigger height and width
-    2. Randomly crop to the target size
-    3. Randomly flip the image horizontally
-    """
-
-    plt.figure(figsize=(6, 6))
-    for i in range(4):
-      rj_inp, rj_re = random_jitter(inp, re)
-      plt.subplot(2, 2, i+1)
-      plt.imshow(rj_inp/255.0)
-      plt.axis('off')
-    plt.show()
-
 def load_image_train(image_file):
   input_image, real_image = load(image_file)
   input_image, real_image = random_jitter(input_image, real_image)
@@ -146,13 +138,13 @@ def load_image_test(image_file):
 
 """## Input Pipeline"""
 
-train_dataset = tf.data.Dataset.list_files(PATH+'train/*.jpg')
+train_dataset = tf.data.Dataset.list_files(TRAIN_PATTERN)
 train_dataset = train_dataset.map(load_image_train,
                                   num_parallel_calls=tf.data.AUTOTUNE)
 train_dataset = train_dataset.shuffle(BUFFER_SIZE)
 train_dataset = train_dataset.batch(BATCH_SIZE)
 
-test_dataset = tf.data.Dataset.list_files(PATH+'test/*.jpg')
+test_dataset = tf.data.Dataset.list_files(TEST_PATTERN)
 test_dataset = test_dataset.map(load_image_test)
 test_dataset = test_dataset.batch(BATCH_SIZE)
 
@@ -243,7 +235,7 @@ def generate_images(model, test_input, tar):
 * Then log the losses to TensorBoard.
 """
 
-EPOCHS = 150
+EPOCHS = args.epochs
 
 import datetime
 log_dir="logs/"
@@ -292,8 +284,8 @@ def fit(train_ds, epochs, test_ds):
     if not args.headless:
         display.clear_output(wait=True)
 
-    for example_input, example_target in test_ds.take(1):
-      generate_images(generator, example_input, example_target)
+    #for example_input, example_target in test_ds.take(1):
+    #  generate_images(generator, example_input, example_target)
     print("Epoch: ", epoch)
 
     # Train
@@ -321,7 +313,7 @@ To launch the viewer paste the following into a code-cell:
 if __name__ == '__main__':
     generator = Generator()
     discriminator = Discriminator()
-    if not args.headless:
+    if not args.headless and False:
         tf.keras.utils.plot_model(generator, show_shapes=True, dpi=64)
 
         gen_output = generator(inp[tf.newaxis, ...], training=False)
@@ -354,12 +346,15 @@ if __name__ == '__main__':
                                      generator=generator,
                                      discriminator=discriminator)
 
-    for example_input, example_target in test_dataset.take(1):
-        generate_images(generator, example_input, example_target)
+    if args.show_untrained:
+        for example_input, example_target in test_dataset.take(1):
+            generate_images(generator, example_input, example_target)
 
     """Now run the training loop:"""
-    #checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
-    #fit(train_dataset, EPOCHS, test_dataset)
+    if not args.skip_restore:
+        checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
+    if not args.skip_training:
+        fit(train_dataset, EPOCHS, test_dataset)
     if not args.headless:
         display.IFrame(
             src="https://tensorboard.dev/experiment/lZ0C6FONROaUMfjYkVyJqw",
