@@ -34,6 +34,11 @@ $('#submit-button').on('click', () => {
     ipcRenderer.send('save-image', imgData, imgName);
 });
 
+$('#skip-button').on('click', () => {
+    let imgData = getCombinedImage();
+    ipcRenderer.send('save-image', imgData, imgName, 'skip');
+});
+
 $('#clear-button').on('click', () => {
     canvas.clearCanvas();
 });
