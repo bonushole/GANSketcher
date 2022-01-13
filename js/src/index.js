@@ -1,7 +1,30 @@
 import DrawCanvas from './DrawCanvas';
 import DisplayCanvas from './DisplayCanvas';
 
-const {ipcRenderer} = window.require('electron');
+console.log('wtf update much?');
+
+function isElectron() {
+    // Renderer process
+    if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
+        return true;
+    }
+
+    // Main process
+    if (typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron) {
+        return true;
+    }
+
+    // Detect the user agent when the `nodeIntegration` option is set to true
+    if (typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0) {
+        return true;
+    }
+
+    return false;
+}
+
+if (isElectron()) {
+    const {ipcRenderer} = window.require('electron');
+}
 
 let canvas = new DrawCanvas();
 let displayCanvas = new DisplayCanvas();
@@ -18,20 +41,51 @@ function getCombinedImage() {
     return combined.toDataURL('image/jpeg').split('base64,')[1];
 }
 
-ipcRenderer.on('image-response', (event, img, name) => {
+function setImage(img, name) {
     let src = `data:image/jpg;base64,${img}`;
     imgName = name
     displayCanvas.setImage(src);
     canvas.clearCanvas();
-});
+}
 
-ipcRenderer.on('save-response', (event) => {
-    ipcRenderer.send('fetch-image')
-});
+if (isElectron()) {
+    ipcRenderer.on('image-response', (event, img, name) => {
+        setImage(img, name);
+    });
+
+    ipcRenderer.on('save-response', (event) => {
+        ipcRenderer.send('fetch-image')
+    });
+}
+
+function fetchImage() {
+    console.log('fetching image');
+    if (isElectron()) {
+        ipcRenderer.send('fetch-image');
+    } else {
+        $.get('webscripts/get_image.py', (data) => {
+            console.log(data);
+            data = JSON.parse(data);
+            console.log(data);
+            setImage(data['img'], data['name']);
+        });
+    }
+}
 
 $('#submit-button').on('click', () => {
     let imgData = getCombinedImage();
-    ipcRenderer.send('save-image', imgData, imgName);
+    if (isElectron()) {
+        ipcRenderer.send('save-image', imgData, imgName);
+    } else {
+        window.imgData = imgData;
+        $.post('webscripts/save_image.py',
+            {img: imgData, name: imgName},
+            () => {
+                fetchImage();
+            }
+        );
+        
+    }
 });
 
 $('#skip-button').on('click', () => {
@@ -44,7 +98,6 @@ $('#clear-button').on('click', () => {
 });
 
 window.onload = () => {
-    console.log('fetching image');
-    ipcRenderer.send('fetch-image');
+    fetchImage();
 }
 

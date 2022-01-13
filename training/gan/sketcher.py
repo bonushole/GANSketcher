@@ -22,6 +22,7 @@ arg_parser.add_argument(
     choices=['facades', 'paintings']
 )
 arg_parser.add_argument('--epochs', type=int, default=450)
+arg_parser.add_argument('--l1_factor', type=int, default=100)
 args = arg_parser.parse_args()
 
 if not args.headless:
@@ -158,7 +159,7 @@ test_dataset = test_dataset.batch(BATCH_SIZE)
 The training procedure for the generator is shown below:
 """
 
-LAMBDA = 100
+LAMBDA = args.l1_factor
 
 def generator_loss(disc_generated_output, gen_output, target):
   gan_loss = loss_object(tf.ones_like(disc_generated_output), disc_generated_output)
