@@ -11,7 +11,7 @@ from write_log import write_log
 
 sys.stderr = sys.stdout
 
-ARTISTS = ['Michelangelo', 'Mikhail_Vrubel', 'Frida_Kahlo', 'Titian']
+ARTISTS = ['Michelangelo', 'Mikhail_Vrubel', 'Frida_Kahlo', 'Titian', 'Pablo_Picasso', 'Salvador_Dali']
 
 SOURCE_DIR = '../images/raw/images/'
 SKIP_DIR = '../images/generated/skip'
