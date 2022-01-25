@@ -7,7 +7,7 @@ import sys
 import random
 from write_log import write_log
 
-random.seed(a=4324325)
+#random.seed(a=4324325)
 
 sys.stderr = sys.stdout
 
