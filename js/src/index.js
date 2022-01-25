@@ -74,12 +74,13 @@ function fetchImage() {
 
 $('#submit-button').on('click', () => {
     let imgData = getCombinedImage();
+    console.log(imgData);
     if (isElectron()) {
         ipcRenderer.send('save-image', imgData, imgName);
     } else {
         window.imgData = imgData;
         $.post('webscripts/save_image.py',
-            {img: imgData, name: imgName},
+            JSON.stringify({img: imgData, name: imgName}),
             () => {
                 fetchImage();
             }
@@ -88,10 +89,18 @@ $('#submit-button').on('click', () => {
     }
 });
 
+/*
 $('#skip-button').on('click', () => {
     let imgData = getCombinedImage();
-    ipcRenderer.send('save-image', imgData, imgName, 'skip');
+    if (isElectron()) {
+        ipcRenderer.send('save-image', imgData, imgName, 'skip');
+    } else {
+        $.get(`webscripts/skip_image.py?name=${imgName}}`, () => {
+            fetchImage();
+        });
+    }
 });
+*/
 
 $('#clear-button').on('click', () => {
     canvas.clearCanvas();
