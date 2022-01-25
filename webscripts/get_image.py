@@ -7,7 +7,7 @@ import sys
 import random
 from write_log import write_log
 
-random.seed()#a=4324325)
+random.seed(a=4324325)
 
 sys.stderr = sys.stdout
 
@@ -23,10 +23,10 @@ print()
 
 files = [os.path.join(a,f) for a in ARTISTS for f in os.listdir(os.path.join(SOURCE_DIR, a))]
 already_used = set([f for d in [SKIP_DIR, TEST_DIR, TRAIN_DIR] for f in os.listdir(d)])
-unused = [f for f in files if f not in already_used]
+unused = [f for f in files if f.split('/')[1] not in already_used]
 #write_log(str(unused))
 
 file_name = random.choice(unused)
 image_file = open(os.path.join(SOURCE_DIR, file_name), 'rb')
 image_base64 = base64.b64encode(image_file.read()).decode('ascii')
-print(json.dumps({'img': image_base64, 'name': file_name}))
+print(json.dumps({'img': image_base64, 'name': file_name.split('/')[1]}))
