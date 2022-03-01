@@ -4,5 +4,4 @@ logs
 images/generated/**
 images/raw/**
 training/training_checkpoints
-training/gan/cloud_paths.py
 webscripts/log

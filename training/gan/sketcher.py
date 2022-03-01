@@ -13,13 +13,14 @@ arg_parser.add_argument('--cloud', action='store_true')
 arg_parser.add_argument('--skip-training', action='store_true')
 arg_parser.add_argument('--skip-restore', action='store_true')
 arg_parser.add_argument('--use-train-for-test', action='store_true')
+arg_parser.add_argument('--use-val-for-test', action='store_true')
 arg_parser.add_argument('--show_untrained', action='store_true')
 # gcloud ai-platform automatically passes this arg
 arg_parser.add_argument('--job-dir')
 arg_parser.add_argument(
     '--dataset',
     default='facades',
-    choices=['facades', 'paintings']
+    choices=['facades', 'paintings', 'edges2handbags']
 )
 arg_parser.add_argument('--epochs', type=int, default=450)
 arg_parser.add_argument('--l1_factor', type=int, default=100)
@@ -46,25 +47,32 @@ if args.cloud:
     PATH = cloud_paths.DATASET_PATH + args.dataset + '/'
     CHECKPOINT_DIR = cloud_paths.CHECKPOINT_PATH + args.dataset
 else:
-    if args.dataset == 'facades':
-        _URL = 'https://people.eecs.berkeley.edu/~tinghuiz/projects/pix2pix/datasets/facades.tar.gz'
+    if args.dataset in ['cityscapes', 'night2day', 'edges2shoes', 'facades', 'maps']:
+        _URL = f'http://efrosgans.eecs.berkeley.edu/pix2pix/datasets/{args.dataset}.tar.gz'
 
-        path_to_zip = tf.keras.utils.get_file('facades.tar.gz',
+        path_to_zip = tf.keras.utils.get_file(f'{args.dataset}.tar.gz',
                                               origin=_URL,
                                               extract=True)
         PATH = os.path.join(os.path.dirname(path_to_zip), 'facades/')
     elif args.dataset == 'paintings':
         PATH = '../images/generated/'
+    elif args.dataset == 'edges2handbags':
+        PATH = '/home/bonushole/.keras/datasets/edges2handbags/'
     CHECKPOINT_DIR = os.path.join('./training_checkpoints', args.dataset)
 print(PATH)
 
 TRAIN_PATTERN = PATH+'train/*.jpg'
+VAL_PATTERN = PATH+'val/*.jpg'
 TEST_PATTERN = PATH+'test/*.jpg'
 if args.use_train_for_test:
     TEST_PATTERN = TRAIN_PATTERN
+elif args.use_val_for_test:
+    TEST_PATTERN = VAL_PATTERN
 
 BUFFER_SIZE = 400
 BATCH_SIZE = 1
+if args.dataset == 'edges2handbags':
+    BATCH_SIZE = 4
 IMG_WIDTH = 256
 IMG_HEIGHT = 256
 
@@ -138,11 +146,10 @@ def load_image_test(image_file):
   return input_image, real_image
 
 """## Input Pipeline"""
-
 train_dataset = tf.data.Dataset.list_files(TRAIN_PATTERN)
 train_dataset = train_dataset.map(load_image_train,
                                   num_parallel_calls=tf.data.AUTOTUNE)
-train_dataset = train_dataset.shuffle(BUFFER_SIZE)
+train_dataset = train_dataset.shuffle(BUFFER_SIZE, reshuffle_each_iteration=True)
 train_dataset = train_dataset.batch(BATCH_SIZE)
 
 test_dataset = tf.data.Dataset.list_files(TEST_PATTERN)
@@ -295,6 +302,8 @@ def fit(train_ds, epochs, test_ds):
       if (n+1) % 100 == 0:
         print()
       train_step(input_image, target, epoch)
+      if n >= BUFFER_SIZE:
+        break
     print()
 
     # saving (checkpoint) the model every 20 epochs
