@@ -53,7 +53,7 @@ OUTPUT_CHANNELS = 3
 
 """
 
-def Generator():
+def Generator(down_freezes=None, up_freezes=None):
   inputs = tf.keras.layers.Input(shape=[256, 256, 3])
 
   down_stack = [
@@ -88,15 +88,19 @@ def Generator():
 
   # Downsampling through the model
   skips = []
-  for down in down_stack:
+  for i, down in enumerate(down_stack):
     x = down(x)
+    if down_freezes is not None and i < down_freezes:
+        x.trainable = False
     skips.append(x)
 
   skips = reversed(skips[:-1])
 
   # Upsampling and establishing the skip connections
-  for up, skip in zip(up_stack, skips):
+  for i, (up, skip) in enumerate(zip(up_stack, skips)):
     x = up(x)
+    if up_freezes is not None and i < down_freezes:
+        x.trainable = False
     x = tf.keras.layers.Concatenate()([x, skip])
 
   x = last(x)
@@ -115,7 +119,7 @@ def Generator():
     * Concatenate these 2 inputs together in the code (`tf.concat([inp, tar], axis=-1)`)
 """
 
-def Discriminator():
+def Discriminator(freeze=False):
   initializer = tf.random_normal_initializer(0., 0.02)
 
   inp = tf.keras.layers.Input(shape=[256, 256, 3], name='input_image')
@@ -126,6 +130,9 @@ def Discriminator():
   down1 = downsample(64, 4, False)(x)  # (bs, 128, 128, 64)
   down2 = downsample(128, 4)(down1)  # (bs, 64, 64, 128)
   down3 = downsample(256, 4)(down2)  # (bs, 32, 32, 256)
+  if freeze:
+    for layer in [down1, down2, down3]:
+        layer.trainable = False
 
   zero_pad1 = tf.keras.layers.ZeroPadding2D()(down3)  # (bs, 34, 34, 256)
   conv = tf.keras.layers.Conv2D(512, 4, strides=1,
