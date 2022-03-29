@@ -6,16 +6,22 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
+    <div class="header">GAN Sketcher</div>
     <div class="container">
-      <canvas id="canvas" width="512" height="512" style="border:solid;"></canvas>
-      <canvas id="display-canvas" width="512" height="512" style="border:solid;"></canvas>
-      <div id="test"></div>
-      <button id="submit-button">submit</button>
-      <button id="clear-button">clear</button>
+      <div class="containerCanvas">
+        <canvas id="canvas" width="512" height="512" style="border:solid;"></canvas>
+        <canvas id="display-canvas" width="512" height="512" style="border:solid;"></canvas>
+      </div>
+      <div class="containerButtons">
+        <div id="test"></div>
+        <button id="submit-button">submit</button>
+        <button id="clear-button">clear</button>
+      </div>
+    </div>
     <!--
     <button id="skip-button">skip</button>
     -->
-    </div>
+  <div class="footer">Max Evans | Jack Perish | Emily Zhao | Valerie Jarvis<br>Cleveland State University | Dr. Tianyun Zhang</div>
     <script src="./main.js"></script>
   </body>
 </html>

@@ -1,12 +1,29 @@
 body {
-  background-image: url(./images/crystal.jpg);
   overflow:hidden;
   margin: 0;
+  background: linear-gradient(rgba(126, 195, 179, 0.25), rgba(126, 195, 179, 0.25)), url(./images/crystal.jpg);
+  background-position-x: center;
 }
 
-.container {
-  background-color: #7EC4B3;
-  mix-blend-mode: color-burn;
-  width:100vw;
-  height:100vh;
+.header, .footer {
+  color: white;
+  background-color: #1C7862;
+  text-align: center;
+  position: fixed;
+  width: 100%;
+}
+
+.containerCanvas, .containerButtons {
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+}
+
+.header {
+  top: 0;
+}
+
+.footer {
+  bottom: 0;
 }
