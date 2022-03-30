@@ -1,29 +1,54 @@
 body {
-  overflow:hidden;
+  overflow-y:hidden;
   margin: 0;
   background: linear-gradient(rgba(126, 195, 179, 0.25), rgba(126, 195, 179, 0.25)), url(./images/crystal.jpg);
   background-position-x: center;
 }
 
-.header, .footer {
-  color: white;
-  background-color: #1C7862;
-  text-align: center;
-  position: fixed;
-  width: 100%;
+ .container {
+  display: inline-block;
+  width: 100vw;
+  height: 100vh;
+  margin-top: 5em;
 }
 
 .containerCanvas, .containerButtons {
   display: flex;
-  height: 100vh;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
+  margin-top: 1em;
+  margin-left: 15em;
+  margin-right: 15em;
+}
+
+.containerButtons {
+  margin-left: 40em;
+  margin-right: 40em;
+}
+
+.header, .footer {
+  color: white;
+  background-color: #1C7862;
+  margin: auto;
+  position: fixed;
+  text-align: center;
 }
 
 .header {
   top: 0;
+  border-radius: 0 0 10px 10px;
+  line-height: 3em;
+  width: 100%;
+  height: 3em;
+  font-size: 24px;
 }
 
 .footer {
   bottom: 0;
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 3em;
 }
