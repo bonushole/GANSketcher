@@ -36,12 +36,13 @@ write_log('\n')
 
 #write_log(img_bytes)
 
-with open(os.path.join(GENERATED_FOLDER, save_name), 'wb') as f:
-    img_bytes = base64.b64decode(post_args['img'].encode('utf-16'))
-    image = Image.open(io.BytesIO(img_bytes))
-    image = image.crop((image.width//2 + 1, 0, image.width, image.height))
-    if len(image.getcolors()) != 1:
-        write_log(f'number of colors: {len(image.getcolors())}\n')
+
+img_bytes = base64.b64decode(post_args['img'].encode('utf-16'))
+image = Image.open(io.BytesIO(img_bytes))
+image = image.crop((image.width//2 + 1, 0, image.width, image.height))
+write_log(f'number of colors: {len(image.getcolors())}\n')
+if len(image.getcolors()) != 1:
+    with open(os.path.join(GENERATED_FOLDER, save_name), 'wb') as f:
         f.write(img_bytes)
 
 print('nothing else to return')
