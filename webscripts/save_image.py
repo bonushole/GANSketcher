@@ -41,6 +41,7 @@ with open(os.path.join(GENERATED_FOLDER, save_name), 'wb') as f:
     image = Image.open(io.BytesIO(img_bytes))
     image = image.crop((image.width//2 + 1, 0, image.width, image.height))
     if len(image.getcolors()) != 1:
+        write_log(f'number of colors: {len(image.getcolors())}\n')
         f.write(img_bytes)
 
 print('nothing else to return')
