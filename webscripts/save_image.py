@@ -5,6 +5,8 @@ import os
 import json
 import sys
 from write_log import write_log
+from PIL import Image
+import io
 
 sys.stderr = open('./log', 'a')
 
