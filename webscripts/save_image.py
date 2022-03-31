@@ -38,7 +38,10 @@ write_log('\n')
 
 with open(os.path.join(GENERATED_FOLDER, save_name), 'wb') as f:
     img_bytes = base64.b64decode(post_args['img'].encode('utf-16'))
-    f.write(img_bytes)
+    image = Image.open(io.BytesIO(img_bytes))
+    image = image.crop((image.width//2 + 1, 0, image.width, image.height))
+    if len(image.getcolors()) != 1:
+        f.write(img_bytes)
 
 print('nothing else to return')
         
