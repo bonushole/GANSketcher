@@ -6,15 +6,23 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <div class="header">GAN Sketcher</div>
+    <div class="header">
+      <img class="images" id="user" src="./webimages/Project Icon.png">
+      <img class="images" id="user" src="./webimages/User Icon.png">
+      <h1>GAN Sketcher</h1>
+      <img class="images" id="user" src="./webimages/Help Icon.png">
+      <img class="images" id="user" src="./webimages/Credits Icon.png">
+    </div>
     <div class="container">
+      <span class="spacer"></span>
       <div class="containerCanvas">
-        <canvas id="canvas" width="512" height="512" style="border:solid;"></canvas>
-        <canvas id="display-canvas" width="512" height="512" style="border:solid;"></canvas>
+        <canvas id="canvas" width="512" height="512"></canvas>
+        <canvas id="display-canvas" width="512" height="512"></canvas>
       </div>
       <div class="containerButtons">
-        <button id="submit-button">submit</button>
+        <!-- <button id="undo-button">undo</button> -->
         <button id="clear-button">clear</button>
+        <button id="submit-button">submit</button>
       </div>
     </div>
     <!--
