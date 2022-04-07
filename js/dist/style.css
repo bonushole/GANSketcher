@@ -3,15 +3,20 @@ body {
   margin: 0;
   background: linear-gradient(rgba(126, 195, 179, 0.25), rgba(126, 195, 179, 0.25)), url(./webimages/crystal.jpg);
   background-position-x: center;
+  font-family: 'B612', sans-serif;
+  font-style: normal;
 }
 
 button {
-  width:6vw;
+  width:6.5vw;
   border-radius: 10px;
   background: white;
   border: 3px solid #1C7862;
   color: #1C7862;
   font-size: 24px;
+  font-family: 'B612', sans-serif;
+  font-style: normal;
+  text-align: center;
 }
 
 canvas {
@@ -46,6 +51,8 @@ canvas {
   margin: auto;
   position: fixed;
   text-align: center;
+  font-family: 'B612', sans-serif;
+  font-style: normal;
 }
 
 .header {
