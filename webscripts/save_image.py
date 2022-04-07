@@ -5,6 +5,8 @@ import os
 import json
 import sys
 from write_log import write_log
+from PIL import Image
+import io
 
 sys.stderr = open('./log', 'a')
 
@@ -36,9 +38,14 @@ write_log('\n')
 
 #write_log(img_bytes)
 
-with open(os.path.join(GENERATED_FOLDER, save_name), 'wb') as f:
-    img_bytes = base64.b64decode(post_args['img'].encode('utf-16'))
-    f.write(img_bytes)
+
+img_bytes = base64.b64decode(post_args['img'].encode('utf-16'))
+image = Image.open(io.BytesIO(img_bytes))
+image = image.crop((image.width//2 + 1, 0, image.width, image.height))
+write_log(f'number of colors: {len(image.getcolors())}\n')
+if len(image.getcolors()) != 1:
+    with open(os.path.join(GENERATED_FOLDER, save_name), 'wb') as f:
+        f.write(img_bytes)
 
 print('nothing else to return')
         
