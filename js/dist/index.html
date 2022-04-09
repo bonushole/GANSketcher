@@ -10,12 +10,15 @@
   </head>
   <body>
     <div class="header">
-      <img class="images" id="user" src="./webimages/CSU Logo.png">
-      <img class="images" id="user" src="./webimages/User Icon.png">
+      <img class="images" id="logo" src="./webimages/CSU Logo.png">
+      <img class="images" id="userIcon" src="./webimages/User Icon.png">
       <h1>Vision Mapping</h1>
-      <img class="images" id="user" src="./webimages/Help Icon.png">
-      <img class="images" id="user" src="./webimages/Credits Icon.png">
+      <img class="images" id="helpIcon" src="./webimages/Help Icon.png">
+      <img class="images" id="creditsIcon" src="./webimages/Credits Icon.png">
     </div>
+    <div class="hidden" id="help">Text Here</div>
+    <div class="hidden" id="user">Text Here</div>
+    <div class="hidden" id="credits">Text Here</div>
     <div class="container">
       <span class="spacer"></span>
       <div class="containerCanvas">
@@ -28,10 +31,30 @@
         <button id="submit-button">Submit</button>
       </div>
     </div>
-    <!--
-    <button id="skip-button">skip</button>
-    -->
   <div class="footer">Cleveland State University<br>Department of Electical Engineering and Computer Science</div>
     <script src="./main.js"></script>
+    <script>
+    //help
+      document.getElementById('helpIcon').onmouseover = function(){
+        document.getElementById('help').style.visibility = 'visible';
+      }
+      document.getElementById('helpIcon').onmouseout = function(){
+        document.getElementById('help').style.visibility = 'hidden';
+      }
+    //user
+      document.getElementById('userIcon').onmouseover = function(){
+        document.getElementById('user').style.visibility = 'visible';
+      }
+      document.getElementById('userIcon').onmouseout = function(){
+        document.getElementById('user').style.visibility = 'hidden';
+      }
+    //credits
+      document.getElementById('creditsIcon').onmouseover = function(){
+        document.getElementById('credits').style.visibility = 'visible';
+      }
+      document.getElementById('creditsIcon').onmouseout = function(){
+        document.getElementById('credits').style.visibility = 'hidden';
+      }
+    </script>
   </body>
 </html>
