@@ -22,6 +22,7 @@ img_str = json.dumps({'img': image_base64})
 
 p = Popen(['./generate_image.py'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)    
 stdout = p.communicate(img_str.encode('ascii'))[0].decode()
+print(stdout)
 cleaned = stdout.split('\n')[2]
 
 post_args = json.loads(cleaned)
