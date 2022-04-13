@@ -68,6 +68,19 @@ canvas {
   justify-content: space-around;
   align-items: center;
   flex-wrap: nowrap;
+
+}
+
+.left {
+    position: absolute;
+    left: 1%;
+    top: 2%;
+}
+
+.right {
+    position: absolute;
+    right: 1%;
+    top: 10%;
 }
 
 .footer {
