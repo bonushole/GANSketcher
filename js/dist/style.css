@@ -21,7 +21,9 @@ button {
 }
 
 button:hover {
-  background-color: #a3d5c9;
+  transition-delay: .1s;
+  transition-duration: .1s;
+  background-color: #d2e7e2;
   cursor: pointer;
 }
 
