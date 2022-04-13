@@ -13,9 +13,10 @@ button {
   background: white;
   border: 3px solid #1C7862;
   color: #1C7862;
-  font-size: 24px;
+  font-size: 18px;
   font-family: 'B612', sans-serif;
   font-style: normal;
+  font-weight: bold;
   text-align: center;
 }
 
@@ -93,8 +94,4 @@ canvas {
   color: #145e4c;
   font-family: 'B612', sans-serif;
   font-style: normal;
-}
-
-#help {
-
 }

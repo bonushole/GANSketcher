@@ -1,8 +1,6 @@
 import DrawCanvas from './DrawCanvas';
 import DisplayCanvas from './DisplayCanvas';
 
-console.log('wtf update much?');
-
 function isElectron() {
     // Renderer process
     if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
@@ -85,7 +83,7 @@ $('#submit-button').on('click', () => {
                 fetchImage();
             }
         );
-        
+
     }
 });
 
@@ -109,4 +107,3 @@ $('#clear-button').on('click', () => {
 window.onload = () => {
     fetchImage();
 }
-
