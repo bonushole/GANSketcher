@@ -20,6 +20,11 @@ button {
   text-align: center;
 }
 
+button:hover {
+  background-color: #a3d5c9;
+  cursor: pointer;
+}
+
 canvas {
   background: #FFFFFF;
   border: 7px solid #1C7862;
