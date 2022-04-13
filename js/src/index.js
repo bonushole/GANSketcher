@@ -1,7 +1,19 @@
 import DrawCanvas from './DrawCanvas';
 import DisplayCanvas from './DisplayCanvas';
 
-console.log('wtf update much?');
+function parseQuery(queryString) {
+    var query = {};
+    var pairs = (queryString[0] === '?' ? queryString.substr(1) : queryString).split('&');
+    for (var i = 0; i < pairs.length; i++) {
+        var pair = pairs[i].split('=');
+        query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+    }
+    return query;
+}
+
+function generateMode() {
+    return parseQuery(window.location.search)['generateMode'];
+}
 
 function isElectron() {
     // Renderer process
@@ -45,7 +57,6 @@ function setImage(img, name) {
     let src = `data:image/jpg;base64,${img}`;
     imgName = name
     displayCanvas.setImage(src);
-    canvas.clearCanvas();
 }
 
 if (isElectron()) {
@@ -63,12 +74,27 @@ function fetchImage() {
     if (isElectron()) {
         ipcRenderer.send('fetch-image');
     } else {
-        $.get('webscripts/get_image.py', (data) => {
-            console.log(data);
-            data = JSON.parse(data);
-            console.log(data);
-            setImage(data['img'], data['name']);
-        });
+        if (generateMode()) {
+            let imgData = canvas.canvas.toDataURL('image/jpeg').split('base64,')[1];
+            $.post('webscripts/generate_image.py',
+            JSON.stringify({img: imgData}),
+            (data) => {
+                console.log(data);
+                data = JSON.parse(data);
+                console.log(data);
+                setImage(data['img'], data['name']);
+            }
+        );
+            
+        } else {
+            $.get('webscripts/get_image.py', (data) => {
+                console.log(data);
+                data = JSON.parse(data);
+                console.log(data);
+                setImage(data['img'], data['name']);
+                canvas.clearCanvas();
+            });
+        }
     }
 }
 
@@ -105,6 +131,10 @@ $('#skip-button').on('click', () => {
 $('#clear-button').on('click', () => {
     canvas.clearCanvas();
 });
+
+if (generateMode()) {
+    canvas.setCallback(() => fetchImage());
+}
 
 window.onload = () => {
     fetchImage();
