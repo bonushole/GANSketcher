@@ -111,7 +111,7 @@ $('#submit-button').on('click', () => {
                 fetchImage();
             }
         );
-        
+
     }
 });
 
@@ -139,4 +139,3 @@ if (generateMode()) {
 window.onload = () => {
     fetchImage();
 }
-

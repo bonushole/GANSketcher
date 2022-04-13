@@ -13,15 +13,23 @@ button {
   background: white;
   border: 3px solid #1C7862;
   color: #1C7862;
-  font-size: 24px;
+  font-size: 18px;
   font-family: 'B612', sans-serif;
   font-style: normal;
+  font-weight: bold;
   text-align: center;
+}
+
+button:hover {
+  transition-delay: .1s;
+  transition-duration: .1s;
+  background-color: #d2e7e2;
+  cursor: pointer;
 }
 
 canvas {
   background: #FFFFFF;
-  border: 7px solid #1C7862;
+  border: 4px solid #1C7862;
   box-sizing: border-box;
   border-radius: 25px;
 }
@@ -60,13 +68,26 @@ canvas {
   border-radius: 0 0 10px 10px;
   line-height: 3em;
   width: 100%;
-  height: 3em;
-  font-size: 24px;
+  height: 11%;
+  font-size: 20px;
   display: flex;
   flex-direction: row;
   justify-content: space-around;
   align-items: center;
   flex-wrap: nowrap;
+
+}
+
+.left {
+    position: absolute;
+    left: 0.5%;
+    top: 14%;
+}
+
+.right {
+    position: absolute;
+    right: 0.5%;
+    top: 20%;
 }
 
 .footer {
@@ -93,8 +114,4 @@ canvas {
   color: #145e4c;
   font-family: 'B612', sans-serif;
   font-style: normal;
-}
-
-#help {
-
 }

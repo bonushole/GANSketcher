@@ -10,13 +10,19 @@
   </head>
   <body>
     <div class="header">
-      <img class="images" id="logo" src="./webimages/CSU Logo.png">
-      <img class="images" id="userIcon" src="./webimages/User Icon.png">
+      <div class="left">
+        <img class="images" id="logo" src="./webimages/CSU Logo.png" height="40%" width="40%">
+        <img class="images" id="userIcon" src="./webimages/User Icon.png" height="40%" width="40%">
+      </div>
       <h1>Vision Mapping</h1>
-      <img class="images" id="helpIcon" src="./webimages/Help Icon.png">
-      <img class="images" id="creditsIcon" src="./webimages/Credits Icon.png">
+      <div class="right">
+        <img class="images" id="helpIcon" src="./webimages/Help Icon.png" height="40%" width="40%">
+        <img class="images" id="creditsIcon" src="./webimages/Credits Icon.png" height="40%" width="40%">
+      </div>
     </div>
-    <div class="hidden" id="help">Text Here</div>
+    <div class="hidden" id="help">Left-click and drag mouse to begin drawing on the Left Canvas. Draw to your heart's
+      desire. Once you are done, click "Submit" for a surprise on the Right Canvas! If you need to undo a line, press
+      "Undo." If you wish to start over, press "Clear" and the entire Left Canvas will be cleared.</div>
     <div class="hidden" id="user">Text Here</div>
     <div class="hidden" id="credits">Text Here</div>
     <div class="container">
@@ -26,12 +32,12 @@
         <canvas id="display-canvas" width="512" height="512"></canvas>
       </div>
       <div class="containerButtons">
-        <!-- <button id="undo-button">Undo</button> -->
+        <button id="undo-button">Undo</button>
         <button id="clear-button">Clear</button>
         <button id="submit-button">Submit</button>
       </div>
     </div>
-  <div class="footer">Cleveland State University<br>Department of Electical Engineering and Computer Science</div>
+  <div class="footer">Cleveland State University<br>Department of Electrical Engineering and Computer Science</div>
     <script src="./main.js"></script>
     <script>
     //help
