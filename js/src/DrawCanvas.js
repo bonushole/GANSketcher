@@ -30,8 +30,15 @@ export default class DrawCanvas{
         $(this.canvas).on('mousedown mouseup mouseleave', () => {
             console.log('stopping now');
             this.lastPos = null;
+            if (this.callback != undefined) {
+                this.callback();
+            }
         });
         this.clearCanvas();
+    }
+    
+    setCallback(callback) {
+        this.callback = callback;
     }
     
     clearCanvas() {
