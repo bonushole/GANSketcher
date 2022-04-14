@@ -1,7 +1,7 @@
 body {
   overflow-y:hidden;
   margin: 0;
-  background: linear-gradient(rgba(126, 195, 179, 0.25), rgba(126, 195, 179, 0.25)), url(./webimages/crystal.jpg);
+  background: linear-gradient(rgba(126, 195, 179, 0.25), rgba(126, 195, 179, 0.25)), url(./webimages/crystal_bg.JPEG);
   background-position-x: center;
   font-family: 'B612', sans-serif;
   font-style: normal;
