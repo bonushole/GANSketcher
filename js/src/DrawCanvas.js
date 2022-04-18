@@ -40,6 +40,7 @@ export default class DrawCanvas{
         $(this.canvas).on('mouseup mousedown', () => {
             this.undo.push(this.canvas.toDataURL());
         });
+        this.clearCanvas();
     }
 
     setCallback(callback) {
