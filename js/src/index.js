@@ -85,7 +85,7 @@ function fetchImage() {
                 setImage(data['img'], data['name']);
             }
         );
-            
+
         } else {
             $.get('webscripts/get_image.py', (data) => {
                 console.log(data);
@@ -130,6 +130,10 @@ $('#skip-button').on('click', () => {
 
 $('#clear-button').on('click', () => {
     canvas.clearCanvas();
+});
+
+$('#undo-button').on('click', () => {
+    canvas.undoCanvas();
 });
 
 if (generateMode()) {

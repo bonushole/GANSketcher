@@ -4,6 +4,9 @@ export default class DrawCanvas{
         this.ctx = this.canvas.getContext('2d');
         this.lastPos = null;
         this.radius = 3;
+
+        this.undo = [];
+
         $(this.canvas).on('mousemove click', (event) => {
             if(event.which == 1){
                 this.ctx.beginPath();
@@ -26,24 +29,39 @@ export default class DrawCanvas{
                 };
             }
         });
-        
+
         $(this.canvas).on('mousedown mouseup mouseleave', () => {
-            console.log('stopping now');
             this.lastPos = null;
             if (this.callback != undefined) {
                 this.callback();
             }
         });
-        this.clearCanvas();
+
+        $(this.canvas).on('mouseup mousedown', () => {
+            this.undo.push(this.canvas.toDataURL());
+        });
     }
-    
+
     setCallback(callback) {
         this.callback = callback;
     }
-    
+
     clearCanvas() {
         this.ctx.fillStyle = 'white';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.undo = [];
     }
-}
 
+    undoCanvas() {
+      if (this.undo.length > 0) {
+        let draw = () => this.ctx.drawImage(image,0,0,512,512);
+        console.log(this.undo);
+        //console.log(this.undo.pop());
+        this.undo.pop();
+        console.log(this.undo);
+        var image=new Image();
+        image.src=this.undo[this.undo.length-1];
+        image.onload = draw;
+      }
+    }
+  }

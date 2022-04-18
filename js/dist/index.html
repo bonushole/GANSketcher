@@ -20,11 +20,81 @@
         <img class="images" id="creditsIcon" src="./webimages/Credits Icon.png" height="40%" width="40%">
       </div>
     </div>
-    <div class="hidden" id="help">Left-click and drag mouse to begin drawing on the Left Canvas. Draw to your heart's
-      desire. Once you are done, click "Submit" for a surprise on the Right Canvas! If you need to undo a line, press
-      "Undo." If you wish to start over, press "Clear" and the entire Left Canvas will be cleared.</div>
-    <div class="hidden" id="user">Text Here</div>
-    <div class="hidden" id="credits">Text Here</div>
+    <div class="hidden" id="help">
+      <p>
+        <h2>Instructions</h2>
+        Left-click and drag mouse to begin drawing on the Left Canvas.
+        <br>
+        Draw to your heart's desire.
+        <br>
+        Once you are done, watch the magic unfold as your drawing becomes generated on the Right Canvas.
+        <br>
+        If you wish to start over, press <i>Clear</i> and the entire Left Canvas will be cleared.
+        <br>
+        Press <i>Save</i> to save your work to the Gallery.
+        <br>
+        Likewise, press <i>Gallery</i> to view your collected drawings.
+      </p>
+    </div>
+    <div class="hidden" id="user">
+      <p>
+        <h2>Meet the Team!</h2>
+        Maximilian Evans is a senior studying Computer science. He participates in several hackathons a year as well as
+        the International Collegiate Programming Contest. His first experience with machine learning was during an
+        internship at Onix Networking during his sophomore year. He also interned at VTI Instruments and MIM Software
+        and after graduation will work at MIM Software as a full time employee.
+        <br>
+        <br>
+        Jack Perish is a junior majoring in Computer Science. He has participated in a multitude of work and research
+        opportunities. Such as working as the primary research assistant to Dr. Zhao and becoming coauthor on his recent
+        paper, "Monitoring Activities of Daily Living with a Mobile App and Bluetooth Beacons: A Preliminary Study"
+        In addition, he has worked as a software developer for both Medical Mutual and CHAMPtitles.
+        <br>
+        <br>
+        Emily Zhao is a senior Computer Science major. She focuses on frontend development, specifically user interface
+        design and user experience. Outside the classroom, she has participated in hackathons where she learned
+        libraries and tools such as Adobe Xd, Figma, and React.js. Emily has three internships under her belt:
+        IT Development at Medical Mutual, Product Management at KeyBank, and Software Development
+        at Progressive Insurance.
+        <br>
+        <br>
+        Valerie Jarvis is a senior Computer Science major with a Mathematics minor. Valerie’s focus has been largely
+        centered around frontend development, especially in group projects as well as hackathon events outside of
+        classes. She has worked on frontend largely through utilizing top-of-the-line frontend tools and libraries.
+        Valerie has had two internships throughout her time in college, one with Nordson in IT and the other with KeyBank in Workforce Management.
+        <br>
+        <br>
+        The team would not be complete without Senior Design Advisor Dr. Tianyun Zhang. Dr. Tianyun Zhang received his
+      Ph.D. in Electrical and Computer Engineering from Syracuse University in 2021. His research interests include
+      model compression on deep neural networks, energy-efficient and high-performance implementations of deep learning
+      and artificial intelligence systems, adversarial robustness on artificial intelligence systems, convex and
+      non-convex optimization. His research papers have been published in competitive conferences such as ASPLOS,
+      ECCV, ICCV, ICDM, DAC, PAKDD, ACC, as well as journal IEEE Transactions on Neural Networks and Learning Systems (TNNLS).
+      </p>
+    </div>
+    <div class="hidden" id="credits">
+      <p>
+        <h2>
+          References
+        </h2>
+      </p>
+      <pre>
+[1] “Best Artworks of All Time,” Kaggle, 24 Nov. 2021. [Online]. Available:
+https://www.kaggle.com/ikarus777/best-artworks-of-all-time.
+[2] P. Isola, J. Zhu, T. Zhou, A. Efros, “Image-to-Image Translation with Conditional
+Adversarial Networks,” Proceedings of the IEEE conference on computer vision
+and pattern recognition, pp. 1125-1134, 2017.
+[3] Americans for the Arts, “Arts facts: Access to arts education is not equitable
+(2017),” Americans for the Arts, 15 May 2019. [Online]. Available:
+https://www.americansforthearts.org/by-program/reports-and-data/legislation-poli
+cy/naappd/arts-facts-access-to-arts-education-in-not-equitable-2017.
+[3] I. Goodfellow, J. Pouget-Abadie, M. Mirza, B. Xu, D. Warde-Farley, S. Ozair, A.
+Courville, and Y. Bengio. Generative adversarial nets. In NIPS, 2014.
+[4] F. Zhuang et al., "A Comprehensive Survey on Transfer Learning," in Proceedings
+of the IEEE, vol. 109, no. 1, pp. 43-76, Jan. 2021, doi: 10.1109/JPROC.2020.3004555.
+[5] M. Mirza, S. Osindero. "Conditional generative adversarial nets," 2014.
+      </pre>
+    </div>
     <div class="container">
       <span class="spacer"></span>
       <div class="containerCanvas">
@@ -34,7 +104,8 @@
       <div class="containerButtons">
         <button id="undo-button">Undo</button>
         <button id="clear-button">Clear</button>
-        <button id="submit-button">Submit</button>
+        <button id="save-button">Save</button>
+        <button id="gallery-button">Gallery</button>
       </div>
     </div>
   <div class="footer">Cleveland State University<br>Department of Electrical Engineering and Computer Science</div>
