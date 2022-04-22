@@ -17,7 +17,7 @@
       <h1>Vision Mapping</h1>
       <div class="right">
         <img class="images" id="helpIcon" src="./webimages/Help Icon.png" height="40%" width="40%">
-        <img class="images" id="creditsIcon" src="./webimages/Credits Icon.png" height="40%" width="40%">
+        <img class="images" id="creditsIcon" onclick="myFunction()" src="./webimages/Credits Icon.png" height="40%" width="40%">
       </div>
     </div>
     <div class="hidden" id="help">
@@ -78,22 +78,32 @@
           References
         </h2>
       </p>
-      <pre>
-[1] “Best Artworks of All Time,” Kaggle, 24 Nov. 2021. [Online]. Available:
-https://www.kaggle.com/ikarus777/best-artworks-of-all-time.
-[2] P. Isola, J. Zhu, T. Zhou, A. Efros, “Image-to-Image Translation with Conditional
-Adversarial Networks,” Proceedings of the IEEE conference on computer vision
+      <p>
+        [1] “Best Artworks of All Time,” Kaggle, 24 Nov. 2021. [Online]. Available:
+        <br>
+        <a href="https://www.kaggle.com/ikarus777/best-artworks-of-all-time">https://www.kaggle.com/ikarus777/best-artworks-of-all-time</a>
+        <br>
+        [2] P. Isola, J. Zhu, T. Zhou, A. Efros, “Image-to-Image Translation with Conditional
+        <br>
+        Adversarial Networks,” Proceedings of the IEEE conference on computer vision
 and pattern recognition, pp. 1125-1134, 2017.
-[3] Americans for the Arts, “Arts facts: Access to arts education is not equitable
-(2017),” Americans for the Arts, 15 May 2019. [Online]. Available:
-https://www.americansforthearts.org/by-program/reports-and-data/legislation-poli
-cy/naappd/arts-facts-access-to-arts-education-in-not-equitable-2017.
-[3] I. Goodfellow, J. Pouget-Abadie, M. Mirza, B. Xu, D. Warde-Farley, S. Ozair, A.
+        <br>
+        [3] Americans for the Arts, “Arts facts: Access to arts education is not equitable
+(2017),” Americans for the Arts, 15 May 2019.
+        <br>
+        [Online]. Available:
+        <a href="https://www.americansforthearts.org/by-program/reports-and-data/legislation-poli
+cy/naappd/arts-facts-access-to-arts-education-in-not-equitable-2017">https://www.americansforthearts.org/by-program/reports-and-data/legislation-poli
+cy/naappd/arts-facts-access-to-arts-education-in-not-equitable-2017</a>
+        <br>
+        [3] I. Goodfellow, J. Pouget-Abadie, M. Mirza, B. Xu, D. Warde-Farley, S. Ozair, A.
 Courville, and Y. Bengio. Generative adversarial nets. In NIPS, 2014.
-[4] F. Zhuang et al., "A Comprehensive Survey on Transfer Learning," in Proceedings
+        <br>
+        [4] F. Zhuang et al., "A Comprehensive Survey on Transfer Learning," in Proceedings
 of the IEEE, vol. 109, no. 1, pp. 43-76, Jan. 2021, doi: 10.1109/JPROC.2020.3004555.
-[5] M. Mirza, S. Osindero. "Conditional generative adversarial nets," 2014.
-      </pre>
+        <br>
+        [5] M. Mirza, S. Osindero. "Conditional generative adversarial nets," 2014.
+      </p>
     </div>
     <div class="container">
       <span class="spacer"></span>
@@ -124,13 +134,20 @@ of the IEEE, vol. 109, no. 1, pp. 43-76, Jan. 2021, doi: 10.1109/JPROC.2020.3004
       document.getElementById('userIcon').onmouseout = function(){
         document.getElementById('user').style.visibility = 'hidden';
       }
-    //credits
-      document.getElementById('creditsIcon').onmouseover = function(){
-        document.getElementById('credits').style.visibility = 'visible';
-      }
-      document.getElementById('creditsIcon').onmouseout = function(){
-        document.getElementById('credits').style.visibility = 'hidden';
-      }
+
+       function myFunction() {
+          flag = false;
+          document.getElementById('credits').style.visibility = 'visible';
+          document.getElementById('creditsIcon').onclick = function(){
+            flag = true;
+            //document.getElementById('credits').style.visibility = 'hidden';
+            if (flag == true) {
+              document.getElementById('credits').style.visibility = 'hidden';
+              flag = false;
+            }
+          }
+       }
+
     </script>
   </body>
 </html>
