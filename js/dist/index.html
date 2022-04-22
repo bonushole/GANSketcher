@@ -134,19 +134,17 @@ of the IEEE, vol. 109, no. 1, pp. 43-76, Jan. 2021, doi: 10.1109/JPROC.2020.3004
       document.getElementById('userIcon').onmouseout = function(){
         document.getElementById('user').style.visibility = 'hidden';
       }
-
-       function myFunction() {
+      //credits
+      var flag = false;
+      document.getElementById('creditsIcon').onclick = function(){
+        if (flag == true) {
+          document.getElementById('credits').style.visibility = 'hidden';
           flag = false;
+        } else {
           document.getElementById('credits').style.visibility = 'visible';
-          document.getElementById('creditsIcon').onclick = function(){
-            flag = true;
-            //document.getElementById('credits').style.visibility = 'hidden';
-            if (flag == true) {
-              document.getElementById('credits').style.visibility = 'hidden';
-              flag = false;
-            }
-          }
-       }
+          flag = true;
+        }
+      }
 
     </script>
   </body>
