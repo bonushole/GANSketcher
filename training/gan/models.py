@@ -95,17 +95,27 @@ def Generator(down_freezes=None, up_freezes=None):
     skips.append(x)
 
   skips = reversed(skips[:-1])
-
+  #print('mmmmm')
   # Upsampling and establishing the skip connections
   for i, (up, skip) in enumerate(zip(up_stack, skips)):
     x = up(x)
-    if up_freezes is not None and i < down_freezes:
+    if up_freezes is not None and i < up_freezes:
         x.trainable = False
+        #print('not trainable')
     x = tf.keras.layers.Concatenate()([x, skip])
 
   x = last(x)
+  if up_freezes is not None and up_freezes > len(up_stack):
+    x.trainable = False
+  
+  gen_model = tf.keras.Model(inputs=inputs, outputs=x)
+  
+  #idk the above code for freezing layers isn't working  
+  if  up_freezes is not None and up_freezes > len(up_stack):
+    for layer in gen_model.layers[::-1][:len(up_stack)+1]:
+        layer.trainable = False
 
-  return tf.keras.Model(inputs=inputs, outputs=x)
+  return gen_model
 
 """![Generator Update Image](https://github.com/tensorflow/docs/blob/master/site/en/tutorials/generative/images/gen.png?raw=1)
 ## Build the Discriminator
