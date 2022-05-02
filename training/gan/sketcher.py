@@ -28,7 +28,7 @@ arg_parser.add_argument(
     choices=['facades', 'paintings', 'edges2handbags', 'edges2paintings']
 )
 arg_parser.add_argument('--supplement-set', default=None)
-arg_parser.add_argument('--supplement-ratio', default=30)
+arg_parser.add_argument('--supplement-ratio', type=int, default=30)
 arg_parser.add_argument('--checkpoint-suffix', default=None)
 arg_parser.add_argument('--epochs', type=int, default=450)
 arg_parser.add_argument('--l1_factor', type=int, default=100)
