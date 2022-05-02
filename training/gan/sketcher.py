@@ -28,6 +28,7 @@ arg_parser.add_argument(
     choices=['facades', 'paintings', 'edges2handbags', 'edges2paintings']
 )
 arg_parser.add_argument('--supplement-set', default=None)
+arg_parser.add_argument('--supplement-ratio', default=30)
 arg_parser.add_argument('--checkpoint-suffix', default=None)
 arg_parser.add_argument('--epochs', type=int, default=450)
 arg_parser.add_argument('--l1_factor', type=int, default=100)
@@ -218,7 +219,7 @@ if args.supplement_set is not None:
     #    yield random.choices([0,1], weights=[7,3])[0]
     train_dataset = tf.data.experimental.sample_from_datasets(
         [train_dataset, supplement_dataset],
-        weights=[.7, .3]
+        weights=[(100 - args.supplement_ratio)/100, args.supplement_ratio/100]
     )
 train_dataset = train_dataset.batch(BATCH_SIZE)
     
