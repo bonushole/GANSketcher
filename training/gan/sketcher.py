@@ -15,6 +15,7 @@ arg_parser.add_argument('--headless', action='store_true')
 arg_parser.add_argument('--cloud', action='store_true')
 arg_parser.add_argument('--save-model', action='store_true')
 arg_parser.add_argument('--flip', action='store_true')
+arg_parser.add_argument('--add-noise', action='store_true')
 arg_parser.add_argument('--skip-training', action='store_true')
 arg_parser.add_argument('--skip-restore', action='store_true')
 arg_parser.add_argument('--use-train-for-test', action='store_true')
@@ -190,7 +191,8 @@ def load_image_train(image_file):
   input_image, real_image = random_jitter(input_image, real_image)
   input_image, real_image = normalize(input_image, real_image)
   #input_image = add_label(input_image, artist_from_filename(image_file))
-  #input_image = add_noise(input_image)
+  if args.add_noise:
+    input_image = add_noise(input_image)
 
   return input_image, real_image
 
@@ -201,7 +203,8 @@ def load_image_test(image_file):
   input_image, real_image = normalize(input_image, real_image)
   input_image = tf.reshape(input_image, [256, 256, 3])
   #input_image = add_label(input_image, artist_from_filename(image_file))
-  #input_image = add_noise(input_image)
+  if args.add_noise:
+    input_image = add_noise(input_image)
 
   return input_image, real_image
 
