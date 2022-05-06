@@ -27,6 +27,35 @@ button:hover {
   cursor: pointer;
 }
 
+select {
+  padding: 0;
+  margin: 0;
+  border: 3px solid #1C7862;
+  width: 120px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: white;
+  position: relative;
+  color: #1C7862;
+  font-size: 18px;
+  font-family: 'B612', sans-serif;
+  font-style: normal;
+  font-weight: bold;
+  text-align:center;
+}
+
+/* width: 6.5vw;
+border-radius: 10px;
+background: white;
+border: 3px solid #1C7862;
+color: #1C7862;
+font-size: 18px;
+font-family: 'B612', sans-serif;
+font-style: normal;
+font-weight: bold;
+text-align: center;
+overflow:hidden; */
+
 canvas {
   background: #FFFFFF;
   border: 4px solid #1C7862;
