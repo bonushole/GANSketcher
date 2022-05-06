@@ -1,6 +1,9 @@
 import tensorflow as tf
 from gan.models import Generator, Discriminator
 import gan.cloud_paths as cloud_paths
+from gan.transform_util import add_noise, artist_from_filename, add_label
+import numpy as np
+import random
 
 import os
 import time
@@ -10,21 +13,28 @@ import argparse
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument('--headless', action='store_true')
 arg_parser.add_argument('--cloud', action='store_true')
+arg_parser.add_argument('--save-model', action='store_true')
+arg_parser.add_argument('--flip', action='store_true')
+arg_parser.add_argument('--add-noise', action='store_true')
 arg_parser.add_argument('--skip-training', action='store_true')
 arg_parser.add_argument('--skip-restore', action='store_true')
 arg_parser.add_argument('--use-train-for-test', action='store_true')
 arg_parser.add_argument('--use-val-for-test', action='store_true')
-arg_parser.add_argument('--show_untrained', action='store_true')
+arg_parser.add_argument('--show-untrained', action='store_true')
 # gcloud ai-platform automatically passes this arg
 arg_parser.add_argument('--job-dir')
 arg_parser.add_argument(
     '--dataset',
     default='facades',
-    choices=['facades', 'paintings', 'edges2handbags']
+    choices=['facades', 'paintings', 'edges2handbags', 'edges2paintings']
 )
+arg_parser.add_argument('--supplement-set', default=None)
+arg_parser.add_argument('--supplement-ratio', type=int, default=30)
+arg_parser.add_argument('--checkpoint-suffix', default=None)
 arg_parser.add_argument('--epochs', type=int, default=450)
 arg_parser.add_argument('--l1_factor', type=int, default=100)
 arg_parser.add_argument('--transfer-set', default=None)
+arg_parser.add_argument('--freeze-up-layers', action='store_true')
 args = arg_parser.parse_args()
 
 if not args.headless:
@@ -42,28 +52,33 @@ You can download this dataset and similar datasets from [here](https://people.ee
 * In random jittering, the image is resized to `286 x 286` and then randomly cropped to `256 x 256`
 * In random mirroring, the image is randomly flipped horizontally i.e left to right.
 """
-PATH = ''
+def get_path(dataset_name):
+    if args.cloud:
+        return cloud_paths.DATASET_PATH + dataset_name + '/'
+    else:
+        if dataset_name in ['cityscapes', 'night2day', 'edges2shoes', 'facades', 'maps']:
+            _URL = f'http://efrosgans.eecs.berkeley.edu/pix2pix/datasets/{args.dataset}.tar.gz'
+
+            path_to_zip = tf.keras.utils.get_file(f'{dataset_name}.tar.gz',
+                                                  origin=_URL,
+                                                  extract=True)
+            return os.path.join(os.path.dirname(path_to_zip), 'facades/')
+        elif dataset_name == 'paintings':
+            return '../images/generated/'
+        elif dataset_name == 'edges2paintings':
+            return '../images/supplemental/'
+        elif dataset_name == 'edges2handbags':
+            return '/home/bonushole/.keras/datasets/edges2handbags/'
+
 TRANSFER_DIR = None
 if args.cloud:
-    PATH = cloud_paths.DATASET_PATH + args.dataset + '/'
     if args.transfer_set is not None:
-        TRANSFER_DIR = cloud_path.CHECKPOINT_PATH + args.transfer_set
+        TRANSFER_DIR = cloud_paths.CHECKPOINT_PATH + args.transfer_set
         CHECKPOINT_DIR = TRANSFER_DIR + '_transfer_' + args.dataset
     else:
         CHECKPOINT_DIR = cloud_paths.CHECKPOINT_PATH + args.dataset
         
 else:
-    if args.dataset in ['cityscapes', 'night2day', 'edges2shoes', 'facades', 'maps']:
-        _URL = f'http://efrosgans.eecs.berkeley.edu/pix2pix/datasets/{args.dataset}.tar.gz'
-
-        path_to_zip = tf.keras.utils.get_file(f'{args.dataset}.tar.gz',
-                                              origin=_URL,
-                                              extract=True)
-        PATH = os.path.join(os.path.dirname(path_to_zip), 'facades/')
-    elif args.dataset == 'paintings':
-        PATH = '../images/generated/'
-    elif args.dataset == 'edges2handbags':
-        PATH = '/home/bonushole/.keras/datasets/edges2handbags/'
     CHECKPOINT_DIR = os.path.join('./training_checkpoints', args.dataset)
     if args.transfer_set is not None:
         TRANSFER_DIR = os.path.join(
@@ -79,11 +94,15 @@ else:
             './training_checkpoints',
             args.dataset
         )
+PATH = get_path(args.dataset)
 print(PATH)
 
 TRAIN_PATTERN = PATH+'train/*.jpg'
 VAL_PATTERN = PATH+'val/*.jpg'
 TEST_PATTERN = PATH+'test/*.jpg'
+if args.supplement_set:
+    SUPPLEMENT_PATTERN = get_path(args.supplement_set) + 'train/*.jpg'
+
 if args.use_train_for_test:
     TEST_PATTERN = TRAIN_PATTERN
 elif args.use_val_for_test:
@@ -91,16 +110,28 @@ elif args.use_val_for_test:
 
 BUFFER_SIZE = 400
 BATCH_SIZE = 1
+FLIP_INPUT_TARGET = args.flip
+if args.flip:
+    CHECKPOINT_DIR += '_flipped'
+if args.checkpoint_suffix is not None:
+    CHECKPOINT_DIR += f'_{args.checkpoint_suffix}'
 if args.dataset == 'edges2handbags':
     BATCH_SIZE = 4
+    FLIP_INPUT_TARGET = True
 IMG_WIDTH = 256
 IMG_HEIGHT = 256
 
-TRANSFER_GEN_DOWN_SKIPS = 6
-TRANSFER_GEN_UP_SKIPS = 6
+TRANSFER_GEN_DOWN_SKIPS = 0
+TRANSFER_GEN_UP_SKIPS = 0
+if args.freeze_up_layers:
+    TRANSFER_GEN_UP_SKIPS = 8
+
+def is_nonempty_dir(test_path):
+    return tf.io.gfile.isdir(test_path) and (len(tf.io.gfile.listdir(test_path)) > 0)
 
 def load(image_file):
   print('loading {}'.format(image_file))
+  print(artist_from_filename(image_file))
   image = tf.io.read_file(image_file)
   image = tf.image.decode_jpeg(image)
 
@@ -109,6 +140,8 @@ def load(image_file):
   w = w // 2
   real_image = image[:, :w, :]
   input_image = image[:, w:, :]
+  if FLIP_INPUT_TARGET:
+    real_image, input_image = input_image, real_image
 
   input_image = tf.cast(input_image, tf.float32)
   real_image = tf.cast(real_image, tf.float32)
@@ -157,6 +190,9 @@ def load_image_train(image_file):
   input_image, real_image = load(image_file)
   input_image, real_image = random_jitter(input_image, real_image)
   input_image, real_image = normalize(input_image, real_image)
+  #input_image = add_label(input_image, artist_from_filename(image_file))
+  if args.add_noise:
+    input_image = add_noise(input_image)
 
   return input_image, real_image
 
@@ -165,6 +201,10 @@ def load_image_test(image_file):
   input_image, real_image = resize(input_image, real_image,
                                    IMG_HEIGHT, IMG_WIDTH)
   input_image, real_image = normalize(input_image, real_image)
+  input_image = tf.reshape(input_image, [256, 256, 3])
+  #input_image = add_label(input_image, artist_from_filename(image_file))
+  if args.add_noise:
+    input_image = add_noise(input_image)
 
   return input_image, real_image
 
@@ -173,7 +213,20 @@ train_dataset = tf.data.Dataset.list_files(TRAIN_PATTERN)
 train_dataset = train_dataset.map(load_image_train,
                                   num_parallel_calls=tf.data.AUTOTUNE)
 train_dataset = train_dataset.shuffle(BUFFER_SIZE, reshuffle_each_iteration=True)
+if args.supplement_set is not None:
+    supplement_dataset = tf.data.Dataset.list_files(SUPPLEMENT_PATTERN)
+    supplement_dataset = supplement_dataset.map(load_image_train,
+                                  num_parallel_calls=tf.data.AUTOTUNE)
+    supplement_dataset = supplement_dataset.shuffle(BUFFER_SIZE, reshuffle_each_iteration=True)
+    #def choice_gen():
+    #    yield random.choices([0,1], weights=[7,3])[0]
+    train_dataset = tf.data.experimental.sample_from_datasets(
+        [train_dataset, supplement_dataset],
+        weights=[(100 - args.supplement_ratio)/100, args.supplement_ratio/100]
+    )
 train_dataset = train_dataset.batch(BATCH_SIZE)
+    
+    
 
 test_dataset = tf.data.Dataset.list_files(TEST_PATTERN)
 test_dataset = test_dataset.map(load_image_test)
@@ -239,7 +292,12 @@ the accumulated statistics learned from the training dataset
 """
 
 def generate_images(model, test_input, tar):
+    #print(np.array(test_input))
+    #print(model.layers[-1].weights)
+    model.summary()
+    #print(sorted(list(set(np.array(test_input).flatten()))))
     prediction = model(test_input, training=True)
+    #print(np.array(prediction))
     if not args.headless:
         plt.figure(figsize=(15, 15))
 
@@ -333,11 +391,11 @@ def fit(train_ds, epochs, test_ds, save_checkpoint):
 
     # saving (checkpoint) the model every 20 epochs
     if epoch % 20 == 0:
-      save_checkpoint.save(file_prefix=checkpoint_prefix)
+      save_checkpoint.save(file_prefix=checkpoint_save_prefix)
 
     print ('Time taken for epoch {} is {} sec\n'.format(epoch + 1,
                                                         time.time()-start))
-  save_checkpoint.save(file_prefix=checkpoint_prefix)
+  save_checkpoint.save(file_prefix=checkpoint_save_prefix)
 
 """This training loop saves logs you can easily view in TensorBoard to monitor the training progress. Working locally you would launch a separate tensorboard process. In a notebook, if you want to monitor with TensorBoard it's easiest to launch the viewer before starting the training.
 
@@ -346,15 +404,15 @@ To launch the viewer paste the following into a code-cell:
 
   
 if __name__ == '__main__':
-    if args.transfer_set is not None:
-        generator = Generator(
-            down_freezes=TRANSFER_GEN_DOWN_SKIPS,
-            up_freezes=TRANSFER_GEN_UP_SKIPS
-        )
-        discriminator = Discriminator(freeze=True)
-    else:
-        generator = Generator()
-        discriminator = Discriminator()
+    #if args.transfer_set is not None:
+    #    generator = Generator(
+    #        down_freezes=TRANSFER_GEN_DOWN_SKIPS,
+    #        up_freezes=TRANSFER_GEN_UP_SKIPS
+    #    )
+    #    discriminator = Discriminator(freeze=True)
+    #else:
+    generator = Generator(up_freezes=TRANSFER_GEN_UP_SKIPS)
+    discriminator = Discriminator()
     if not args.headless and False:
         tf.keras.utils.plot_model(generator, show_shapes=True, dpi=64)
 
@@ -381,10 +439,11 @@ if __name__ == '__main__':
     discriminator_optimizer = tf.keras.optimizers.Adam(2e-4, beta_1=0.5)
 
     checkpoint_dir = CHECKPOINT_DIR
-    if TRANSFER_DIR is not None and not os.path.exists(TRANSFER_DIR):
+    if TRANSFER_DIR is not None and (not is_nonempty_dir(CHECKPOINT_DIR)):
         checkpoint_load_dir = TRANSFER_DIR
     else:
         checkpoint_load_dir = checkpoint_dir
+    print('checkpoint_load_dir {}'.format(checkpoint_load_dir))
     print('checkpoint_dir {}'.format(checkpoint_dir))
     checkpoint_save_prefix = os.path.join(checkpoint_dir, "ckpt")
     checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer,
@@ -393,7 +452,7 @@ if __name__ == '__main__':
                                      discriminator=discriminator)
 
     if args.show_untrained:
-        for example_input, example_target in test_dataset.take(1):
+        for example_input, example_target in train_dataset.take(10):
             generate_images(generator, example_input, example_target)
 
     """Now run the training loop:"""
@@ -429,4 +488,7 @@ if __name__ == '__main__':
     # Run the trained model on a few examples from the test dataset
     for inp, tar in test_dataset.take(5):
         generate_images(generator, inp, tar)
+    
+    if args.save_model:
+        generator.save('saved_model')
     
